@@ -1,0 +1,65 @@
+{{- if .Values.services.reviewService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.reviewService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.services.reviewService.name }}
+    version: {{ .Values.services.reviewService.image.tag | quote }}
+spec:
+  {{- if not .Values.services.reviewService.autoscaling.enabled }}
+  replicas: {{ .Values.services.reviewService.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.reviewService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.reviewService.name }}
+        version: {{ .Values.services.reviewService.image.tag | quote }}
+        {{- if .Values.monitoring.enabled }}
+        monitoring: "true"
+        {{- end }}
+    spec:
+      {{- if .Values.image.imagePullSecrets.enabled }}
+      imagePullSecrets:
+        {{- include "microservices.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ .Values.services.reviewService.name }}
+        image: {{ include "microservices.image" (dict "root" . "service" .Values.services.reviewService) }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.services.reviewService.port }}
+          name: http
+        env:
+        - name: PORT
+          value: {{ .Values.services.reviewService.port | quote }}
+        - name: NODE_ENV
+          value: "production"
+        envFrom:
+        - configMapRef:
+            name: microservices-config
+        - secretRef:
+            name: microservices-secret
+        livenessProbe:
+          httpGet:
+            path: /api/reviews/health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/reviews/ready
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        resources:
+          {{- toYaml .Values.services.reviewService.resources | nindent 10 }}
+{{- end }}

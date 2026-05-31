@@ -1,0 +1,200 @@
+# ============================================================
+# HELM CHART v3.0 - Microservices E-Commerce
+# Support Harbor + Docker Hub + Registries Custom
+# ============================================================
+
+# Configuration globale
+global:
+  namespace: ecommerce
+
+# ============================================================
+# REGISTRY CONFIGURATION (GitHub Container Registry)
+# ============================================================
+image:
+  # Mode registry : "ghcr" (GitHub Container Registry)
+  registryType: ghcr  # GitHub Container Registry (public)
+
+  # Configuration GitHub Container Registry
+  ghcr:
+    registry: ghcr.io
+    owner: yaraportfolio  # GitHub username/org
+
+  # Configuration générale
+  pullPolicy: Always
+
+  # Image Pull Secrets
+  # Si votre repo est public, laisser vide []
+  imagePullSecrets:
+    enabled: false  # false pour GHCR public
+
+# ============================================================
+# DATABASE CONFIGURATION
+# ============================================================
+database:
+  host: "192.168.56.115"
+  port: 3306
+  name: ecommerce_db
+  user: devops_user
+  # ⚠️ NE PAS mettre le password ici en production !
+  # Utiliser : --set database.password=XXX ou values-secrets.yaml
+  password: ""  # Vide par défaut (sécurité)
+
+# ============================================================
+# JWT SECRET
+# ============================================================
+jwt:
+  # ⚠️ NE PAS mettre le secret ici en production !
+  # Utiliser : --set jwt.secret=XXX ou values-secrets.yaml
+  secret: ""  # Vide par défaut (sécurité)
+
+# ============================================================
+# MICROSERVICES CONFIGURATION
+# ============================================================
+services:
+  # Auth Service
+  authService:
+    enabled: true
+    name: auth-service
+    image:
+      # Tag peut être : v3.0.0, latest, 1a2b3c4 (commit SHA)
+      tag: v3.3
+      # Override registry pour ce service (optionnel)
+      # registry: custom.registry.com
+    port: 3001
+    replicas: 2
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    # Autoscaling (HPA)
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 70
+      targetMemoryUtilizationPercentage: 80
+    
+  # Product Service
+  productService:
+    enabled: true
+    name: product-service
+    image:
+      tag: v3.3
+    port: 3002
+    replicas: 2
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 70
+    
+  # Order Service
+  orderService:
+    enabled: true
+    name: order-service
+    image:
+      tag: v3.3
+    port: 3003
+    replicas: 1
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 70
+    
+  # Review Service
+  reviewService:
+    enabled: true
+    name: review-service
+    image:
+      tag: v3.3
+    port: 3004
+    replicas: 1
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPUUtilizationPercentage: 70
+
+# ============================================================
+# INGRESS CONFIGURATION
+# ============================================================
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  host: api.ecommerce.local
+  tls:
+    enabled: false
+    secretName: microservices-tls
+
+# ============================================================
+# MONITORING (Prometheus)
+# ============================================================
+monitoring:
+  # Activer le monitoring
+  enabled: false
+  
+  # ServiceMonitor pour Prometheus Operator
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    scrapeTimeout: 10s
+    labels:
+      monitoring: "true"
+      prometheus: "kube-prometheus"
+
+# ============================================================
+# EXEMPLES D'UTILISATION
+# ============================================================
+#
+# Installation avec GHCR (GitHub Container Registry public) :
+# helm install microservices . \
+#   --set database.password=XXXXX \
+#   --set jwt.secret=YYYYY
+#
+# Images utilisées :
+# - ghcr.io/yaraportfolio/auth-service:v3.3
+# - ghcr.io/yaraportfolio/product-service:v3.3
+# - ghcr.io/yaraportfolio/order-service:v3.3
+# - ghcr.io/yaraportfolio/review-service:v3.3
+#
+# Mise à jour d'un seul service (auth) :
+# helm upgrade microservices . \
+#   --reuse-values \
+#   --set services.authService.image.tag=v3.4
+#
+# Activer autoscaling :
+# helm upgrade microservices . \
+#   --reuse-values \
+#   --set services.authService.autoscaling.enabled=true
+#
+# Désactiver un service :
+# helm upgrade microservices . \
+#   --reuse-values \
+#   --set services.reviewService.enabled=false
+#

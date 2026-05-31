@@ -1,0 +1,65 @@
+{{- if .Values.services.authService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.authService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.services.authService.name }}
+    version: {{ .Values.services.authService.image.tag | quote }}
+spec:
+  {{- if not .Values.services.authService.autoscaling.enabled }}
+  replicas: {{ .Values.services.authService.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.authService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.authService.name }}
+        version: {{ .Values.services.authService.image.tag | quote }}
+        {{- if .Values.monitoring.enabled }}
+        monitoring: "true"
+        {{- end }}
+    spec:
+      {{- if .Values.image.imagePullSecrets.enabled }}
+      imagePullSecrets:
+        {{- include "microservices.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ .Values.services.authService.name }}
+        image: {{ include "microservices.image" (dict "root" . "service" .Values.services.authService) }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.services.authService.port }}
+          name: http
+        env:
+        - name: PORT
+          value: {{ .Values.services.authService.port | quote }}
+        - name: NODE_ENV
+          value: "production"
+        envFrom:
+        - configMapRef:
+            name: microservices-config
+        - secretRef:
+            name: microservices-secret
+        livenessProbe:
+          httpGet:
+            path: /api/auth/health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/auth/ready
+            port: http
+          initialDelaySeconds: 20 
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        resources:
+          {{- toYaml .Values.services.authService.resources | nindent 10 }}
+{{- end }}

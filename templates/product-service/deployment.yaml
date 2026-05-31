@@ -1,0 +1,65 @@
+{{- if .Values.services.productService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.productService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.services.productService.name }}
+    version: {{ .Values.services.productService.image.tag | quote }}
+spec:
+  {{- if not .Values.services.productService.autoscaling.enabled }}
+  replicas: {{ .Values.services.productService.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.productService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.productService.name }}
+        version: {{ .Values.services.productService.image.tag | quote }}
+        {{- if .Values.monitoring.enabled }}
+        monitoring: "true"
+        {{- end }}
+    spec:
+      {{- if .Values.image.imagePullSecrets.enabled }}
+      imagePullSecrets:
+        {{- include "microservices.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ .Values.services.productService.name }}
+        image: {{ include "microservices.image" (dict "root" . "service" .Values.services.productService) }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.services.productService.port }}
+          name: http
+        env:
+        - name: PORT
+          value: {{ .Values.services.productService.port | quote }}
+        - name: NODE_ENV
+          value: "production"
+        envFrom:
+        - configMapRef:
+            name: microservices-config
+        - secretRef:
+            name: microservices-secret
+        livenessProbe:
+          httpGet:
+            path: /api/products/health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/products/ready
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        resources:
+          {{- toYaml .Values.services.productService.resources | nindent 10 }}
+{{- end }}

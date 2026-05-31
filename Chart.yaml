@@ -1,0 +1,15 @@
+apiVersion: v2
+name: microservices
+description: E-commerce microservices platform with multi-registry support
+type: application
+version: 3.0.0
+appVersion: "1.1.0"
+keywords:
+  - microservices
+  - kubernetes
+  - helm
+  - nodejs
+  - prometheus
+maintainers:
+  - name: Yara Mahi Mohamed
+    email: devops@example.com

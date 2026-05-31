@@ -1,0 +1,21 @@
+{{- if .Values.services.authService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.authService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.services.authService.name }}
+    {{- if .Values.monitoring.enabled }}
+    monitoring: "true"
+    {{- end }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.services.authService.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: {{ .Values.services.authService.name }}
+{{- end }}

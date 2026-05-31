@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservices-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: devops-microservices
+    app.kubernetes.io/managed-by: helm
+data:
+  # Database configuration
+  DB_HOST: "{{ .Values.database.host }}"
+  DB_PORT: "{{ .Values.database.port }}"
+  DB_NAME: "{{ .Values.database.name }}"
+  
+  # Services URLs (DNS Kubernetes)
+  AUTH_SERVICE_URL: "http://auth-service:3001"
+  PRODUCT_SERVICE_URL: "http://product-service:3002"
+  ORDER_SERVICE_URL: "http://order-service:3003"
+  REVIEW_SERVICE_URL: "http://review-service:3004"
+  
+  # Node environment
+  NODE_ENV: "production"

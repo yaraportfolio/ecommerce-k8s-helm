@@ -1,0 +1,31 @@
+{{- if and .Values.services.authService.enabled .Values.services.authService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.services.authService.name }}-hpa
+  namespace: {{ .Values.global.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.services.authService.name }}
+  minReplicas: {{ .Values.services.authService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.services.authService.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.services.authService.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.services.authService.autoscaling.targetCPUUtilizationPercentage }}
+  {{- end }}
+  {{- if .Values.services.authService.autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.services.authService.autoscaling.targetMemoryUtilizationPercentage }}
+  {{- end }}
+{{- end }}

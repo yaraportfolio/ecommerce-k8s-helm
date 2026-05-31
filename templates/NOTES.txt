@@ -1,0 +1,43 @@
+
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   ✅ Microservices E-Commerce déployés avec succès !           ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+📦 Services actifs :
+{{- if .Values.services.authService.enabled }}
+  ✅ Auth Service
+     Tag: {{ .Values.services.authService.image.tag }}
+{{- if .Values.services.authService.autoscaling.enabled }}
+     Autoscaling: {{ .Values.services.authService.autoscaling.minReplicas }}-{{ .Values.services.authService.autoscaling.maxReplicas }} pods
+{{- end }}
+     Endpoint: http://{{ .Values.ingress.host }}/api/auth
+{{- end }}
+
+{{- if .Values.services.productService.enabled }}
+  ✅ Product Service
+     Tag: {{ .Values.services.productService.image.tag }}
+{{- if .Values.services.productService.autoscaling.enabled }}
+     Autoscaling: {{ .Values.services.productService.autoscaling.minReplicas }}-{{ .Values.services.productService.autoscaling.maxReplicas }} pods
+{{- end }}
+     Endpoint: http://{{ .Values.ingress.host }}/api/products
+{{- end }}
+
+{{- if .Values.services.orderService.enabled }}
+  ✅ Order Service
+     Tag: {{ .Values.services.orderService.image.tag }}
+{{- if .Values.services.orderService.autoscaling.enabled }}
+     Autoscaling: {{ .Values.services.orderService.autoscaling.minReplicas }}-{{ .Values.services.orderService.autoscaling.maxReplicas }} pods
+{{- end }}
+     Endpoint: http://{{ .Values.ingress.host }}/api/orders
+{{- end }}
+
+{{- if .Values.services.reviewService.enabled }}
+  ✅ Review Service
+     Tag: {{ .Values.services.reviewService.image.tag }}
+{{- if .Values.services.reviewService.autoscaling.enabled }}
+     Autoscaling: {{ .Values.services.reviewService.autoscaling.minReplicas }}-{{ .Values.services.reviewService.autoscaling.maxReplicas }} pods
+{{- end }}
+     Endpoint: http://{{ .Values.ingress.host }}/api/reviews
+{{- end }}
