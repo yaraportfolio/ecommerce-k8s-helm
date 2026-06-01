@@ -57,7 +57,7 @@ services:
     name: auth-service
     image:
       # Tag peut être : v3.0.0, latest, 1a2b3c4 (commit SHA)
-      tag: v3.3
+      tag: latest
       # Override registry pour ce service (optionnel)
       # registry: custom.registry.com
     port: 3001
@@ -82,7 +82,7 @@ services:
     enabled: true
     name: product-service
     image:
-      tag: v3.3
+      tag: latest
     port: 3002
     replicas: 2
     resources:
@@ -103,7 +103,7 @@ services:
     enabled: true
     name: order-service
     image:
-      tag: v3.3
+      tag: latest
     port: 3003
     replicas: 1
     resources:
@@ -124,7 +124,7 @@ services:
     enabled: true
     name: review-service
     image:
-      tag: v3.3
+      tag: latest
     port: 3004
     replicas: 1
     resources:
@@ -169,13 +169,44 @@ monitoring:
       prometheus: "kube-prometheus"
 
 # ============================================================
+# AWS SECRETS MANAGER (EKS avec Secrets Store CSI Driver)
+# ============================================================
+awsSecretsManager:
+  # Activer pour EKS sur AWS (utilise AWS Secrets Manager + ASCP add-on)
+  # Désactiver (false) pour on-premise / dev (utilise Kubernetes Secrets)
+  enabled: true
+
+  # Région AWS (requise si enabled: true)
+  region: "eu-west-1"
+
+  # IAM Role ARN pour IRSA (IAM Roles for Service Accounts)
+  # Format: arn:aws:iam::ACCOUNT_ID:role/ecommerce-eks-secrets-role
+  # Laisser vide si disabled
+  iamRoleArn: "arn:aws:iam::020379956170:role/ecommerce-eks-secrets-role"
+
+  # Noms des secrets AWS Secrets Manager
+  secrets:
+    dbCredentials:
+      # Secret contenant : { "DB_USER": "...", "DB_PASSWORD": "..." }
+      secretName: "ecommerce/db/credentials"
+    jwtSecret:
+      # Secret contenant : { "JWT_SECRET": "..." }
+      secretName: "ecommerce/jwt/secret"
+
+# ============================================================
 # EXEMPLES D'UTILISATION
 # ============================================================
 #
-# Installation avec GHCR (GitHub Container Registry public) :
+# Installation avec GHCR (GitHub Container Registry public) - Dev :
 # helm install microservices . \
 #   --set database.password=XXXXX \
 #   --set jwt.secret=YYYYY
+#
+# Installation sur EKS AWS avec AWS Secrets Manager :
+# helm install microservices . \
+#   --set awsSecretsManager.enabled=true \
+#   --set awsSecretsManager.region=eu-west-1 \
+#   --set awsSecretsManager.iamRoleArn=arn:aws:iam::ACCOUNT:role/ecommerce-eks-secrets-role
 #
 # Images utilisées :
 # - ghcr.io/yaraportfolio/auth-service:v3.3

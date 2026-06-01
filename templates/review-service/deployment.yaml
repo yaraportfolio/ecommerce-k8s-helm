@@ -27,6 +27,9 @@ spec:
       imagePullSecrets:
         {{- include "microservices.imagePullSecrets" . | nindent 8 }}
       {{- end }}
+      {{- if .Values.awsSecretsManager.enabled }}
+      serviceAccountName: ecommerce-sa
+      {{- end }}
       containers:
       - name: {{ .Values.services.reviewService.name }}
         image: {{ include "microservices.image" (dict "root" . "service" .Values.services.reviewService) }}
@@ -44,6 +47,12 @@ spec:
             name: microservices-config
         - secretRef:
             name: microservices-secret
+        {{- if .Values.awsSecretsManager.enabled }}
+        volumeMounts:
+        - name: aws-secrets-store
+          mountPath: "/mnt/secrets"
+          readOnly: true
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /api/reviews/health
@@ -62,4 +71,13 @@ spec:
           failureThreshold: 5
         resources:
           {{- toYaml .Values.services.reviewService.resources | nindent 10 }}
+      {{- if .Values.awsSecretsManager.enabled }}
+      volumes:
+      - name: aws-secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "aws-secrets"
+      {{- end }}
 {{- end }}

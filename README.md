@@ -136,10 +136,10 @@ kubectl get pods -n ecommerce
 
 ## 🔄 Configuration Registry
 
-### GitHub Container Registry (GHCR) Public ✅
+### Stratégie Portfolio : Microservices sur GHCR (Public) ✅
 
 ```yaml
-# values.yaml
+# values.yaml - Configuration par défaut
 image:
   registryType: ghcr
   ghcr:
@@ -149,11 +149,13 @@ image:
     enabled: false   # Images publiques - pas de secret requis
 ```
 
-Images : 
+**Microservices (4 services) - Images Publiques GHCR :**
 - `ghcr.io/yaraportfolio/auth-service:v3.3`
 - `ghcr.io/yaraportfolio/product-service:v3.3`
 - `ghcr.io/yaraportfolio/order-service:v3.3`
 - `ghcr.io/yaraportfolio/review-service:v3.3`
+
+Pas d'authentification requise - images **publiques** sur GitHub Container Registry.
 
 ```bash
 helm install ecommerce-microservices . \
@@ -161,7 +163,72 @@ helm install ecommerce-microservices . \
   -f values-secrets.yaml
 ```
 
-Les images sont **publiques** sur GitHub Container Registry, pas d'authentification requise.
+---
+
+### Alternative AWS : ECR Privé pour Microservices
+
+Si vous préférez une registry privée AWS (ECR) :
+
+```yaml
+# values.yaml - Configuration ECR
+image:
+  registryType: ecr
+  ecr:
+    registry: {ACCOUNT_ID}.dkr.ecr.eu-west-1.amazonaws.com
+    owner: ecommerce
+  imagePullSecrets:
+    enabled: true    # Créer un secret ECR
+```
+
+Puis déployer via Terraform :
+```bash
+helm upgrade ecommerce-microservices . \
+  --set image.registryType=ecr \
+  --set image.ecr.registry={ACCOUNT_ID}.dkr.ecr.eu-west-1.amazonaws.com \
+  --set image.ecr.owner=ecommerce
+```
+
+> 💡 **Note** : Le Frontend est toujours sur ECR (privé AWS). Les microservices utilisent GHCR par défaut pour le portfolio.
+
+---
+
+## 🔐 Gestion des Secrets
+
+### Option 1 : Kubernetes Secrets (Développement)
+
+Par défaut, les secrets (DB password, JWT) sont injectés via Kubernetes Secrets natifs. Pas sécurisé pour la production.
+
+```bash
+helm install ecommerce-microservices . \
+  -f values-secrets.yaml \
+  --set database.password="YOUR_PASSWORD" \
+  --set jwt.secret="YOUR_JWT_SECRET"
+```
+
+### Option 2 : AWS Secrets Manager + CSI Driver (Production EKS) ✅
+
+Approche sécurisée : les secrets sont gérés par AWS Secrets Manager, jamais stockés dans Kubernetes etcd.
+
+**Prérequis :**
+1. EKS cluster avec add-on **"AWS Secrets and Configuration Provider"** installé
+2. Secrets créés dans AWS Secrets Manager :
+   - `ecommerce/db/credentials` → JSON `{"DB_USER":"...","DB_PASSWORD":"..."}`
+   - `ecommerce/jwt/secret` → JSON `{"JWT_SECRET":"..."}`
+3. IAM Role avec `secretsmanager:GetSecretValue` annoté au ServiceAccount (IRSA)
+
+**Déployer :**
+```bash
+helm install ecommerce-microservices . \
+  --set awsSecretsManager.enabled=true \
+  --set awsSecretsManager.region=eu-west-1 \
+  --set awsSecretsManager.iamRoleArn="arn:aws:iam::ACCOUNT:role/ecommerce-eks-secrets-role"
+```
+
+**Vérifier :**
+```bash
+kubectl get secretproviderclass -n ecommerce
+kubectl get secret microservices-secret -n ecommerce
+```
 
 ---
 

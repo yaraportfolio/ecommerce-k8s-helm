@@ -59,13 +59,16 @@ Génère l'URL complète de l'image selon le registryType
 Usage: {{ include "microservices.image" (dict "root" . "service" .Values.services.AuthService) }}
 
 Exemples:
+  registryType: ghcr      → ghcr.io/yaraportfolio/auth-service:latest
   registryType: harbor    → harbor.myvbox.com/ecommerce/auth-service:v1.1
   registryType: dockerhub → yaramahi/auth-service:v1.1
 */}}
 {{- define "microservices.image" -}}
 {{- $root := .root }}
 {{- $service := .service }}
-{{- if eq $root.Values.image.registryType "harbor" }}
+{{- if eq $root.Values.image.registryType "ghcr" }}
+{{- printf "%s/%s/%s:%s" $root.Values.image.ghcr.registry $root.Values.image.ghcr.owner $service.name $service.image.tag }}
+{{- else if eq $root.Values.image.registryType "harbor" }}
 {{- printf "%s/%s/%s:%s" $root.Values.image.harbor.registry $root.Values.image.harbor.project $service.name $service.image.tag }}
 {{- else if eq $root.Values.image.registryType "dockerhub" }}
 {{- printf "%s/%s:%s" $root.Values.image.dockerhub.username $service.name $service.image.tag }}
