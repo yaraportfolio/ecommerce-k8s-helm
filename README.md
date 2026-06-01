@@ -114,8 +114,8 @@ kubectl get deployment metrics-server -n kube-system
 ## ⚡ Quick Start
 
 ```bash
-git clone https://github.com/yaraportfolio/k8s-helm-chart.git
-cd k8s-helm-chart
+git clone https://github.com/yaraportfolio/ecommerce-k8s-helm.git
+cd ecommerce-k8s-helm
 
 # Copier et éditer les secrets
 cp values-secrets.yaml.example values-secrets.yaml
@@ -368,10 +368,6 @@ kubectl delete namespace ecommerce
 | 🛒 Order Service | [order-service](https://github.com/yaraportfolio/ecommerce-order-service) |
 | ⭐ Review Service | [review-service](https://gitlab.com/yara_portfolio/devops/ecommerce/microservice/review-service) |
 | 🎨 Frontend React | [ecommerce-frontend](https://gitlab.com/yara_portfolio/devops/ecommerce/ecommerce-frontend) |
-| 🔌 Backend Monolithique | [ecommerce-backend](https://gitlab.com/yara_portfolio/devops/ecommerce/ecommerce-backend) |
-| 🗄️ Base de données | [ecommerce-database](https://gitlab.com/yara_portfolio/devops/ecommerce/ecommerce-database) |
-| 🐝 Docker Swarm | [docker-swarm](https://gitlab.com/yara_portfolio/devops/ecommerce/devops-tools/docker-swarm) |
-| 🤖 Ansible Deployment | [ansible-deployment](https://gitlab.com/yara_portfolio/devops/ecommerce/ansible-deployment) |
 
 ---
 
