@@ -366,8 +366,8 @@ kubectl delete namespace ecommerce
 | 🔐 Auth Service | [auth-service](https://github.com/yaraportfolio/ecommerce-auth-service) |
 | 📦 Product Service | [product-service](https://github.com/yaraportfolio/ecommerce-product-service) |
 | 🛒 Order Service | [order-service](https://github.com/yaraportfolio/ecommerce-order-service) |
-| ⭐ Review Service | [review-service](https://gitlab.com/yara_portfolio/devops/ecommerce/microservice/review-service) |
-| 🎨 Frontend React | [ecommerce-frontend](https://gitlab.com/yara_portfolio/devops/ecommerce/ecommerce-frontend) |
+| ⭐ Review Service | [review-service](https://github.com/yaraportfolio/ecommerce-review-service) |
+| 🎨 Frontend React | [ecommerce-frontend](https://github.com/yaraportfolio/ecommerce-frontend) |
 
 ---
 
