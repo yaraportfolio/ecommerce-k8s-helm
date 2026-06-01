@@ -1,4 +1,4 @@
-# ⎈ Helm Chart — Microservices E-Commerce Kubernetes
+# ⎈ Helm Chart - Microservices E-Commerce Kubernetes
 
 ![Helm](https://img.shields.io/badge/Helm-3.x-0F1689?logo=helm&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.23+-326CE5?logo=kubernetes&logoColor=white)
@@ -6,9 +6,9 @@
 ![Prometheus](https://img.shields.io/badge/Prometheus-ServiceMonitor-E6522C?logo=prometheus&logoColor=white)
 ![Version](https://img.shields.io/badge/chart-v3.0-blue)
 
-Helm Chart complet pour déployer les 4 microservices e-commerce sur Kubernetes — utilise GitHub Container Registry (GHCR), autoscaling HPA, monitoring Prometheus et rollback granulaire par service.
+Helm Chart complet pour déployer les 4 microservices e-commerce sur Kubernetes - utilise GitHub Container Registry (GHCR), autoscaling HPA, monitoring Prometheus et rollback granulaire par service.
 
-> 💡 **Objectif Portfolio** : Illustrer la gestion de configuration Kubernetes via Helm — déploiement déclaratif, mises à jour ciblées par service, rollback en une commande, et séparation secrets/configuration.
+> 💡 **Objectif Portfolio** : Illustrer la gestion de configuration Kubernetes via Helm - déploiement déclaratif, mises à jour ciblées par service, rollback en une commande, et séparation secrets/configuration.
 
 ---
 
@@ -36,7 +36,7 @@ Helm Chart complet pour déployer les 4 microservices e-commerce sur Kubernetes 
 └──────────────────────────┬──────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────┐
-│  Database VM (192.168.56.115) — MariaDB 10.11 externe   │
+│  Database VM (192.168.56.115) - MariaDB 10.11 externe   │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -96,8 +96,8 @@ Helm Chart complet pour déployer les 4 microservices e-commerce sur Kubernetes 
 |-------|---------|-------------|
 | Kubernetes | 1.23+ | `kubectl version` |
 | Helm | 3.x | `helm version` |
-| NGINX Ingress | — | `kubectl get pods -n ingress-nginx` |
-| Metrics Server | — | `kubectl get deployment metrics-server -n kube-system` |
+| NGINX Ingress | - | `kubectl get pods -n ingress-nginx` |
+| Metrics Server | - | `kubectl get deployment metrics-server -n kube-system` |
 | Prometheus Operator | Optionnel | `kubectl get crd servicemonitors.monitoring.coreos.com` |
 
 > **Configuration on-premise :** L'Ingress Controller est exposé via NodePort **30080**. C'est cet endpoint qui doit être utilisé pour l'accès externe depuis le frontend.
@@ -121,7 +121,7 @@ cd ecommerce-k8s-helm
 cp values-secrets.yaml.example values-secrets.yaml
 nano values-secrets.yaml
 
-# Installer (GHCR public — GitHub Container Registry)
+# Installer (GHCR public - GitHub Container Registry)
 helm install ecommerce-microservices . \
   --create-namespace \
   --namespace ecommerce \
@@ -146,7 +146,7 @@ image:
     registry: ghcr.io
     owner: yaraportfolio
   imagePullSecrets:
-    enabled: false   # Images publiques — pas de secret requis
+    enabled: false   # Images publiques - pas de secret requis
 ```
 
 Images : 
@@ -218,7 +218,7 @@ kubectl rollout status deployment/auth-service -n ecommerce
 ## 📈 Autoscaling HPA
 
 ```yaml
-# values.yaml — Activer pour un service
+# values.yaml - Activer pour un service
 services:
   authService:
     autoscaling:
@@ -329,8 +329,8 @@ kubectl get servicemonitor -n ecommerce
 
 ### Avant Installation
 
-- [ ] `kubectl version` — Cluster accessible
-- [ ] `helm version` — Helm 3.x installé
+- [ ] `kubectl version` - Cluster accessible
+- [ ] `helm version` - Helm 3.x installé
 - [ ] NGINX Ingress déployé
 - [ ] MariaDB accessible depuis le cluster (`192.168.56.115:3306`)
 - [ ] Images disponibles sur registry choisi
@@ -384,7 +384,7 @@ kubectl delete namespace ecommerce
 ## 👨‍💻 Auteur
 
 **Yara Mahi Mohamed**  
-Portfolio DevOps & SRE — Architecture Microservices  
+Portfolio DevOps & SRE - Architecture Microservices  
 
 Ce projet fait partie d'un portfolio complet démontrant :
 - Infrastructure as Code (Ansible)
