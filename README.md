@@ -10,9 +10,11 @@ Helm Chart complet pour déployer les 4 microservices e-commerce sur Kubernetes 
 
 > 💡 **Objectif Portfolio** : Illustrer la gestion de configuration Kubernetes via Helm - déploiement déclaratif, mises à jour ciblées par service, rollback en une commande, et séparation secrets/configuration.
 
+> ☁️ **Déployé sur AWS EKS (Auto Mode)** dans ce portfolio — infra complète, guides pas-à-pas et Terraform : **[➜ ecommerce-terraform-aws](https://github.com/yaraportfolio/ecommerce-terraform-aws)**. Le chart reste **portable** : il fonctionne aussi sur un cluster Kubernetes **on-premise** (basculer `ingress.className` de `alb` à `nginx`).
+
 ---
 
-## 🗺️ Architecture Déployée
+## 🗺️ Architecture Déployée — *AWS EKS*
 
 ```
                         Internet
