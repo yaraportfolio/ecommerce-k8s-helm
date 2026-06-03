@@ -45,23 +45,16 @@ Helm Chart complet pour déployer les 4 microservices e-commerce sur Kubernetes 
 ```
 
 <details>
-  <summary>🖼️ <code>Architecture Applicative</code></summary>
+  <summary>🖼️ <code>Architecture AWS (EKS + ALB + RDS)</code></summary>
 
-![Architecture Applicative](https://raw.githubusercontent.com/yaraportfolio/ecommerce-frontend/main/.img/Architecture-Applicative.png)
-
-</details>
-
-<details>
-  <summary>🏗️ <code>Architecture Infrastructure</code></summary>
-
-![Architecture Infrastructure](https://raw.githubusercontent.com/yaraportfolio/ecommerce-frontend/main/.img/Architecture-Infrastructure.png)
+![Architecture AWS](https://raw.githubusercontent.com/yaraportfolio/ecommerce-terraform-aws/main/img/architecture.png)
 
 </details>
 
 <details>
-  <summary>☸️ <code>Vue Kubernetes (Lens)</code></summary>
+  <summary>☸️ <code>Vue Kubernetes — pods (Lens)</code></summary>
 
-![Lens](https://raw.githubusercontent.com/yaraportfolio/ecommerce-frontend/main/.img/lens.png)
+![Pods EKS (Lens)](https://raw.githubusercontent.com/yaraportfolio/ecommerce-terraform-aws/main/img/eks-pods.png)
 
 </details>
 
