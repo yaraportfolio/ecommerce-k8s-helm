@@ -9,6 +9,12 @@ metadata:
     {{- if .Values.monitoring.enabled }}
     monitoring: "true"
     {{- end }}
+  {{- if eq .Values.ingress.className "alb" }}
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /api/orders/health
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/success-codes: "200"
+  {{- end }}
 spec:
   type: ClusterIP
   ports:

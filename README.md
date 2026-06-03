@@ -15,29 +15,31 @@ Helm Chart complet pour déployer les 4 microservices e-commerce sur Kubernetes 
 ## 🗺️ Architecture Déployée
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│             Frontend VM (192.168.56.114)                │
-│           NGINX → proxy vers Ingress :30080             │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│         Kubernetes Cluster (192.168.56.111)             │
-│                                                         │← Nous sommes ici (projet actuel)
-│  ┌─────────────────────────────────────────────────┐    │
-│  │          NGINX Ingress (NodePort 30080)         │    │
-│  │               api.ecommerce.local               │    │
-│  └────┬────────────┬────────────┬────────────┬─────┘    │
-│       │            │            │            │          │
-│  ┌────▼────┐  ┌────▼────┐  ┌────▼────┐  ┌────▼────┐     │
-│  │  Auth   │  │ Product │  │  Order  │  │ Review  │     │
-│  │  :3001  │  │  :3002  │  │  :3003  │  │  :3004  │     │
-│  │   HPA   │  │   HPA   │  │   HPA   │  │   HPA   │     │
-│  └─────────┘  └─────────┘  └─────────┘  └─────────┘     │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│  Database VM (192.168.56.115) - MariaDB 10.11 externe   │
-└─────────────────────────────────────────────────────────┘
+                        Internet
+                            │
+┌───────────────────────────▼──────────────────────────────┐
+│      AWS ALB (Application Load Balancer)                 │
+│   ecommerce-alb-xxxx.eu-west-1.elb.amazonaws.com         │
+└───────────────────────────┬──────────────────────────────┘
+                            │
+┌───────────────────────────▼──────────────────────────────┐
+│         AWS EKS Cluster (eu-west-1)                      │
+│                                                          │← Nous sommes ici (projet actuel)
+│  ┌──────────────────────────────────────────────────┐    │
+│  │      AWS Load Balancer Controller (Ingress)      │    │
+│  └────┬────────────┬────────────┬────────────┬──────┘    │
+│       │            │            │            │           │
+│  ┌────▼────┐  ┌────▼────┐  ┌────▼────┐  ┌────▼────┐      │
+│  │  Auth   │  │ Product │  │  Order  │  │ Review  │      │
+│  │  :3001  │  │  :3002  │  │  :3003  │  │  :3004  │      │
+│  │   HPA   │  │   HPA   │  │   HPA   │  │   HPA   │      │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘      │
+└───────────────────────────┬──────────────────────────────┘
+                            │
+┌───────────────────────────▼──────────────────────────────┐
+│       AWS RDS MySQL 8.0 (Free Tier)                      │
+│   ecommerce-mysql.xxxx.eu-west-1.rds.amazonaws.com       │
+└──────────────────────────────────────────────────────────┘
 ```
 
 <details>
@@ -379,9 +381,10 @@ kubectl describe ingress -n ecommerce
 # Logs d'un service
 kubectl logs -n ecommerce -l app=auth-service --tail=50
 
-# Tester via Ingress
-curl http://192.168.56.111:30080/api/products
-curl http://192.168.56.111:30080/api/auth/health
+# Tester via ALB (récupérer l'URL avec la commande ci-dessous)
+ALB=$(kubectl get ingress api-ingress -n ecommerce -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+curl http://$ALB/api/products
+curl http://$ALB/api/auth/health
 
 # HPA status
 kubectl get hpa -n ecommerce
@@ -398,20 +401,21 @@ kubectl get servicemonitor -n ecommerce
 
 - [ ] `kubectl version` - Cluster accessible
 - [ ] `helm version` - Helm 3.x installé
-- [ ] NGINX Ingress déployé
-- [ ] MariaDB accessible depuis le cluster (`192.168.56.115:3306`)
-- [ ] Images disponibles sur registry choisi
-- [ ] `values-secrets.yaml` co++++++++nfiguré (DB password, JWT secret)
+- [ ] AWS Load Balancer Controller déployé (`helm install aws-load-balancer-controller`)
+- [ ] RDS MySQL accessible depuis le cluster (Security Group configuré)
+- [ ] Images disponibles sur GHCR (`ghcr.io/yaraportfolio/`)
+- [ ] Secrets AWS Secrets Manager créés (`ecommerce/db/credentials`, `ecommerce/jwt/secret`)
 - [ ] Metrics Server déployé (si HPA activé)
 
 ### Après Installation
 
-- [ ] `helm status ecommerce-microservices` → deployed
-- [ ] `kubectl get pods -n ecommerce` → 8/8 Running
-- [ ] `curl http://192.168.56.111:30080/api/products` → 200 OK
+- [ ] `helm status ecommerce-microservices -n ecommerce` → deployed
+- [ ] `kubectl get pods -n ecommerce` → 4/4 Running
+- [ ] `kubectl get ingress -n ecommerce` → ALB ADDRESS visible
+- [ ] `curl http://<ALB>/api/products` → 200 OK + liste produits
+- [ ] `curl http://<ALB>/api/auth/health` → `{"status":"ok","database":"connected"}`
 - [ ] Logs sans erreurs de connexion BD
 - [ ] `kubectl get hpa -n ecommerce` (si HPA activé)
-- [ ] Prometheus scrape OK (si monitoring activé)
 
 ---
 

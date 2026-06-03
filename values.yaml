@@ -31,7 +31,7 @@ image:
 # DATABASE CONFIGURATION
 # ============================================================
 database:
-  host: "192.168.56.115"
+  host: "ecommerce-mysql.ct0issk2iavo.eu-west-1.rds.amazonaws.com"
   port: 3306
   name: ecommerce_db
   user: devops_user
@@ -145,9 +145,9 @@ services:
 # ============================================================
 ingress:
   enabled: true
-  className: nginx
+  className: alb
   annotations: {}
-  host: api.ecommerce.local
+  host: ""
   tls:
     enabled: false
     secretName: microservices-tls
@@ -209,10 +209,10 @@ awsSecretsManager:
 #   --set awsSecretsManager.iamRoleArn=arn:aws:iam::ACCOUNT:role/ecommerce-eks-secrets-role
 #
 # Images utilisées :
-# - ghcr.io/yaraportfolio/auth-service:v3.3
-# - ghcr.io/yaraportfolio/product-service:v3.3
-# - ghcr.io/yaraportfolio/order-service:v3.3
-# - ghcr.io/yaraportfolio/review-service:v3.3
+# - ghcr.io/yaraportfolio/auth-service:latest
+# - ghcr.io/yaraportfolio/product-service:latest
+# - ghcr.io/yaraportfolio/order-service:latest
+# - ghcr.io/yaraportfolio/review-service:latest
 #
 # Mise à jour d'un seul service (auth) :
 # helm upgrade microservices . \

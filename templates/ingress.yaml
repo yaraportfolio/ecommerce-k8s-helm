@@ -7,11 +7,14 @@ metadata:
   labels:
     app.kubernetes.io/name: devops-microservices
   annotations:
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: ecommerce-alb
     {{- range $key, $value := .Values.ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
+  ingressClassName: alb
   {{- if .Values.ingress.tls.enabled }}
   tls:
   - hosts:
